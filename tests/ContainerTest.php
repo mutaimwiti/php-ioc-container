@@ -6,8 +6,13 @@ use Container\Container;
 use Tests\Fixtures\ClassA;
 use Tests\Fixtures\ClassB;
 use Tests\Fixtures\ClassC;
+use Tests\Fixtures\ClassE;
+use Tests\Fixtures\ClassF;
+use Tests\Fixtures\ClassD;
 use PHPUnit\Framework\TestCase;
 use Container\NotFoundException;
+use Container\NoDefaultValueException;
+
 
 class ContainerTest extends TestCase
 {
@@ -86,5 +91,41 @@ class ContainerTest extends TestCase
 
         $this->assertEquals($expected->classA, $resolved->classA);
         $this->assertEquals($expected->classB->classA, $resolved->classB->classA);
+    }
+
+    /** @test */
+    function it_throws_for_un_hinted_parameters_without_default_values()
+    {
+        $this->expectException(NoDefaultValueException::class);
+
+        $this->container->get(ClassD::class);
+    }
+
+    /** @test */
+    function it_throws_for_for_primitive_types_missing_default_values()
+    {
+        $this->expectException(NoDefaultValueException::class);
+
+        $this->container->get(ClassE::class);
+    }
+
+    /** @test */
+    function it_uses_default_values_for_un_hinted_parameters()
+    {
+        $expected = new ClassF(new ClassA());
+
+        $resolved = $this->container->get(ClassF::class);
+
+        $this->assertEquals($expected->x, $resolved->x);
+    }
+
+    /** @test */
+    function it_uses_default_value_for_primitive_types()
+    {
+        $expected = new ClassF(new ClassA());
+
+        $resolved = $this->container->get(ClassF::class);
+
+        $this->assertEquals($expected->x, $resolved->x);
     }
 }

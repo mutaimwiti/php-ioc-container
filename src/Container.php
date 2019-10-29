@@ -33,27 +33,39 @@ class Container
         throw new NotFoundException("No ${key} is defined on container");
     }
 
-    public function resolve($class)
+    /**
+     * @param $key
+     * @return bool
+     * @throws \ReflectionException
+     * @throws \Exception
+     */
+    public function resolve($key)
     {
-        if (class_exists($class)) {
-            $reflectionClass = new ReflectionClass($class);
+        if (class_exists($key)) {
+            $reflectionClass = new ReflectionClass($key);
 
             if ($reflectionClass->isInstantiable()) {
                 $constructor = $reflectionClass->getConstructor();
 
                 $parameters = $constructor->getParameters();
 
-                if (!count($parameters)) {
-                    return new $class();
-                }
-
                 $arguments = [];
 
                 foreach ($parameters as $parameter) {
-                    $arguments[] = $this->get(($parameter->getClass())->name);
+                    $class = $parameter->getClass();
+
+                    if ($class !== null) {
+                        $arguments[] = $this->get($class->name);
+                    } else if ($parameter->isDefaultValueAvailable()) {
+                        $arguments[] = $parameter->getDefaultValue();
+                    } else {
+                        throw new NoDefaultValueException(
+                            "Parameter $parameter->name of $key has no default value"
+                        );
+                    }
                 }
 
-                return new $class(...$arguments);
+                return new $key(...$arguments);
             }
         }
         return false;
