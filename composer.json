@@ -1,0 +1,25 @@
+{
+    "name": "mutaimwiti/ioc-container",
+    "description": "IOC container",
+    "type": "project",
+    "require-dev": {
+        "phpunit/phpunit": "^8.4"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Mutai Mwiti"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Container\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    }
+}
