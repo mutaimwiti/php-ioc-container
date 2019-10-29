@@ -3,8 +3,9 @@
 namespace Tests;
 
 use Container\Container;
-use Container\NotFoundException;
+use Tests\Fixtures\ClassA;
 use PHPUnit\Framework\TestCase;
+use Container\NotFoundException;
 
 class ContainerTest extends TestCase
 {
@@ -36,5 +37,13 @@ class ContainerTest extends TestCase
         $this->expectException(NotFoundException::class);
 
         $this->assertEquals('bar', $this->container->get('something'));
+    }
+
+    /** @test
+     * @throws \Exception
+     */
+    function it_automatically_instantiates_class_with_empty_constructor()
+    {
+        $this->assertEquals(new ClassA(), $this->container->get(ClassA::class));
     }
 }
