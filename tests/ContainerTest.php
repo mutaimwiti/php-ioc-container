@@ -33,7 +33,7 @@ class ContainerTest extends TestCase
     {
         $this->container->bind('foo', 'bar');
 
-        $this->assertEquals('bar', $this->container->get('foo'));
+        $this->assertEquals('bar', $this->container->make('foo'));
     }
 
     /** @test
@@ -43,7 +43,7 @@ class ContainerTest extends TestCase
     {
         $this->expectException(NotFoundException::class);
 
-        $this->assertEquals('bar', $this->container->get('something'));
+        $this->assertEquals('bar', $this->container->make('something'));
     }
 
     /** @test
@@ -53,7 +53,7 @@ class ContainerTest extends TestCase
     {
         $expected = new ClassA();
 
-        $this->assertEquals($expected, $this->container->get(ClassA::class));
+        $this->assertEquals($expected, $this->container->make(ClassA::class));
     }
 
     /** @test
@@ -63,7 +63,7 @@ class ContainerTest extends TestCase
     {
         $expected = new ClassB(new ClassA());
 
-        $this->assertEquals($expected, $this->container->get(ClassB::class));
+        $this->assertEquals($expected, $this->container->make(ClassB::class));
     }
 
     /** @test
@@ -73,7 +73,7 @@ class ContainerTest extends TestCase
     {
         $expected = new ClassC(new ClassA(), new ClassB(new ClassA()));
 
-        $this->assertEquals($expected, $this->container->get(ClassC::class));
+        $this->assertEquals($expected, $this->container->make(ClassC::class));
     }
 
     /** @test
@@ -87,7 +87,7 @@ class ContainerTest extends TestCase
         $this->container->bind(ClassA::class, $classA);
 
         $expected = new ClassC($classA, new ClassB($classA));
-        $resolved = $this->container->get(ClassC::class);
+        $resolved = $this->container->make(ClassC::class);
 
         $this->assertEquals($expected->classA, $resolved->classA);
         $this->assertEquals($expected->classB->classA, $resolved->classB->classA);
@@ -98,7 +98,7 @@ class ContainerTest extends TestCase
     {
         $this->expectException(NoDefaultValueException::class);
 
-        $this->container->get(ClassD::class);
+        $this->container->make(ClassD::class);
     }
 
     /** @test */
@@ -106,7 +106,7 @@ class ContainerTest extends TestCase
     {
         $this->expectException(NoDefaultValueException::class);
 
-        $this->container->get(ClassE::class);
+        $this->container->make(ClassE::class);
     }
 
     /** @test */
@@ -114,7 +114,7 @@ class ContainerTest extends TestCase
     {
         $expected = new ClassF(new ClassA());
 
-        $resolved = $this->container->get(ClassF::class);
+        $resolved = $this->container->make(ClassF::class);
 
         $this->assertEquals($expected->x, $resolved->x);
     }
@@ -124,7 +124,7 @@ class ContainerTest extends TestCase
     {
         $expected = new ClassF(new ClassA());
 
-        $resolved = $this->container->get(ClassF::class);
+        $resolved = $this->container->make(ClassF::class);
 
         $this->assertEquals($expected->x, $resolved->x);
     }

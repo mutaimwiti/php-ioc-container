@@ -3,46 +3,49 @@
 namespace Container;
 
 use ReflectionClass;
-use ReflectionFunction;
+use ReflectionException;
+use ReflectionParameter;
 
 class Container
 {
     protected $bindings = [];
 
     /**
-     * @param $key
-     * @param $value
+     * @param $abstract
+     * @param $concrete
      */
-    public function bind($key, $value)
+    public function bind($abstract, $concrete)
     {
-        $this->bindings[$key] = $value;
+        $this->bindings[$abstract] = $concrete;
     }
 
     /**
-     * @param $key
+     * @param $abstract
      * @return mixed
-     * @throws \Exception
+     * @throws NoDefaultValueException
+     * @throws NotFoundException
+     * @throws ReflectionException
      */
-    public function get($key)
+    public function make($abstract)
     {
-        if (array_key_exists($key, $this->bindings)) {
-            return $this->bindings[$key];
-        } else if ($instance = $this->resolve($key)) {
-            return $instance;
+        if (array_key_exists($abstract, $this->bindings)) {
+            return $this->bindings[$abstract];
         }
-        throw new NotFoundException("No ${key} is defined on container");
+
+        return $this->resolve($abstract);
     }
 
     /**
-     * @param $key
+     * @param $abstract
      * @return bool
-     * @throws \ReflectionException
-     * @throws \Exception
+     * @throws NoDefaultValueException
+     * @throws NotFoundException
+     * @throws ReflectionException
      */
-    public function resolve($key)
+    protected function resolve($abstract)
     {
-        if (class_exists($key)) {
-            $reflectionClass = new ReflectionClass($key);
+        if (class_exists($abstract)) {
+            $reflectionClass = new ReflectionClass($abstract);
 
             if ($reflectionClass->isInstantiable()) {
                 $constructor = $reflectionClass->getConstructor();
@@ -52,22 +55,35 @@ class Container
                 $arguments = [];
 
                 foreach ($parameters as $parameter) {
-                    $class = $parameter->getClass();
-
-                    if ($class !== null) {
-                        $arguments[] = $this->get($class->name);
-                    } else if ($parameter->isDefaultValueAvailable()) {
-                        $arguments[] = $parameter->getDefaultValue();
-                    } else {
-                        throw new NoDefaultValueException(
-                            "Parameter $parameter->name of $key has no default value"
-                        );
-                    }
+                    $arguments[] = $this->resolveParameterArgument($parameter);
                 }
 
-                return new $key(...$arguments);
+                return new $abstract(...$arguments);
             }
         }
-        return false;
+
+        throw new NotFoundException("No ${abstract} is defined on container");
+    }
+
+    /**
+     * @param ReflectionParameter $parameter
+     * @return mixed
+     * @throws NoDefaultValueException
+     * @throws NotFoundException
+     * @throws ReflectionException
+     */
+    protected function resolveParameterArgument(ReflectionParameter $parameter)
+    {
+        $class = $parameter->getClass();
+
+        if ($class !== null) {
+            return $this->make($class->name);
+        } else if ($parameter->isDefaultValueAvailable()) {
+            return $parameter->getDefaultValue();
+        } else {
+            throw new NoDefaultValueException(
+                "Parameter $parameter->name has no default value"
+            );
+        }
     }
 }
