@@ -41,11 +41,19 @@ class Container
             if ($reflectionClass->isInstantiable()) {
                 $constructor = $reflectionClass->getConstructor();
 
-                $arguments = $constructor->getParameters();
+                $parameters = $constructor->getParameters();
 
-                if (!count($arguments)) {
+                if (!count($parameters)) {
                     return new $class();
                 }
+
+                $arguments = [];
+
+                foreach ($parameters as $parameter) {
+                    $arguments[] = $this->get(($parameter->getClass())->name);
+                }
+
+                return new $class(...$arguments);
             }
         }
         return false;
