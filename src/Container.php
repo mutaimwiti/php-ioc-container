@@ -2,6 +2,7 @@
 
 namespace Container;
 
+use Closure;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionParameter;
@@ -29,7 +30,13 @@ class Container
     public function make($abstract)
     {
         if (array_key_exists($abstract, $this->bindings)) {
-            return $this->bindings[$abstract];
+            $concrete = $this->bindings[$abstract];
+
+            if ($concrete instanceof Closure) {
+                return $concrete($this);
+            }
+
+            return $concrete;
         }
 
         return $this->resolve($abstract);

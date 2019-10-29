@@ -128,4 +128,16 @@ class ContainerTest extends TestCase
 
         $this->assertEquals($expected->x, $resolved->x);
     }
+
+    /** @test */
+    function it_allows_binding_of_closures()
+    {
+        $this->container->bind(ClassD::class, function ($container) {
+            return new ClassD($container->make(ClassA::class), 7);
+        });
+
+        $expected = new ClassD(new ClassA(), 7);
+
+        $this->assertEquals($expected, $this->container->make(ClassD::class));
+    }
 }
