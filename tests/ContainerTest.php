@@ -29,9 +29,11 @@ class ContainerTest extends TestCase
     /** @test
      * @throws \Exception
      */
-    function it_should_bind_and_resolve_correctly()
+    function it_should_bind_and_resolve_arbitrary_values_correctly()
     {
-        $this->container->bind('foo', 'bar');
+        $this->container->bind('foo', function () {
+            return 'bar';
+        });
 
         $this->assertEquals('bar', $this->container->make('foo'));
     }
@@ -74,23 +76,6 @@ class ContainerTest extends TestCase
         $expected = new ClassC(new ClassA(), new ClassB(new ClassA()));
 
         $this->assertEquals($expected, $this->container->make(ClassC::class));
-    }
-
-    /** @test
-     * @throws \Exception
-     */
-    function it_uses_existing_bindings_when_loading_class_dependencies_recursively()
-    {
-        $classA = new ClassA();
-        $classA->message = 'Hello world';
-
-        $this->container->bind(ClassA::class, $classA);
-
-        $expected = new ClassC($classA, new ClassB($classA));
-        $resolved = $this->container->make(ClassC::class);
-
-        $this->assertEquals($expected->classA, $resolved->classA);
-        $this->assertEquals($expected->classB->classA, $resolved->classB->classA);
     }
 
     /** @test */

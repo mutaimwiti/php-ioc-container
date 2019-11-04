@@ -22,7 +22,7 @@ class Container
 
     /**
      * @param $abstract
-     * @return mixed
+     * @return bool|mixed
      * @throws NoDefaultValueException
      * @throws NotFoundException
      * @throws ReflectionException
@@ -36,7 +36,7 @@ class Container
                 return $concrete($this);
             }
 
-            return $concrete;
+            return $this->resolve($abstract);
         }
 
         return $this->resolve($abstract);
@@ -69,7 +69,7 @@ class Container
             }
         }
 
-        throw new NotFoundException("No ${abstract} is defined on container");
+        throw new NotFoundException("No $abstract is defined on container");
     }
 
     /**
