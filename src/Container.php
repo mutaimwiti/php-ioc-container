@@ -56,12 +56,14 @@ class Container
         if ($reflectionClass->isInstantiable()) {
             $constructor = $reflectionClass->getConstructor();
 
-            $parameters = $constructor->getParameters();
-
             $arguments = [];
 
-            foreach ($parameters as $parameter) {
-                $arguments[] = $this->resolveParameterArgument($parameter);
+            if ($constructor !== null) {
+                $parameters = $constructor->getParameters();
+
+                foreach ($parameters as $parameter) {
+                    $arguments[] = $this->resolveParameterArgument($parameter);
+                }
             }
 
             return new $abstract(...$arguments);

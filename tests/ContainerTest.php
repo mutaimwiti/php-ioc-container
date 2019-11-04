@@ -14,6 +14,7 @@ use Tests\Fixtures\Classes\ClassE;
 use Tests\Fixtures\Classes\ClassF;
 use Tests\Fixtures\Classes\ClassD;
 use Container\NoDefaultValueException;
+use Tests\Fixtures\Classes\classH;
 use Tests\Fixtures\Contracts\Contract1;
 use Tests\Fixtures\Contracts\Contract2;
 
@@ -60,6 +61,16 @@ class ContainerTest extends TestCase
         $expected = new ClassA();
 
         $this->assertEquals($expected, $this->container->make(ClassA::class));
+    }
+
+    /** @test
+     * @throws \Exception
+     */
+    function it_automatically_instantiates_class_without_constructor()
+    {
+        $expected = new classH();
+
+        $this->assertEquals($expected, $this->container->make(classH::class));
     }
 
     /** @test
