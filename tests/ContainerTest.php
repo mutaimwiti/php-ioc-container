@@ -3,6 +3,7 @@
 namespace Tests;
 
 use Container\Container;
+use ReflectionException;
 use Tests\Fixtures\ClassA;
 use Tests\Fixtures\ClassB;
 use Tests\Fixtures\ClassC;
@@ -10,7 +11,6 @@ use Tests\Fixtures\ClassE;
 use Tests\Fixtures\ClassF;
 use Tests\Fixtures\ClassD;
 use PHPUnit\Framework\TestCase;
-use Container\NotFoundException;
 use Container\NoDefaultValueException;
 
 
@@ -43,7 +43,7 @@ class ContainerTest extends TestCase
      */
     function it_should_throw_if_it_cannot_resolve_item()
     {
-        $this->expectException(NotFoundException::class);
+        $this->expectException(ReflectionException::class);
 
         $this->assertEquals('bar', $this->container->make('something'));
     }

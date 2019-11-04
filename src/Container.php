@@ -24,7 +24,6 @@ class Container
      * @param $abstract
      * @return bool|mixed
      * @throws NoDefaultValueException
-     * @throws NotFoundException
      * @throws ReflectionException
      */
     public function make($abstract)
@@ -46,37 +45,31 @@ class Container
      * @param $abstract
      * @return bool
      * @throws NoDefaultValueException
-     * @throws NotFoundException
      * @throws ReflectionException
      */
     protected function resolve($abstract)
     {
-        if (class_exists($abstract)) {
-            $reflectionClass = new ReflectionClass($abstract);
+        $reflectionClass = new ReflectionClass($abstract);
 
-            if ($reflectionClass->isInstantiable()) {
-                $constructor = $reflectionClass->getConstructor();
+        if ($reflectionClass->isInstantiable()) {
+            $constructor = $reflectionClass->getConstructor();
 
-                $parameters = $constructor->getParameters();
+            $parameters = $constructor->getParameters();
 
-                $arguments = [];
+            $arguments = [];
 
-                foreach ($parameters as $parameter) {
-                    $arguments[] = $this->resolveParameterArgument($parameter);
-                }
-
-                return new $abstract(...$arguments);
+            foreach ($parameters as $parameter) {
+                $arguments[] = $this->resolveParameterArgument($parameter);
             }
-        }
 
-        throw new NotFoundException("No $abstract is defined on container");
+            return new $abstract(...$arguments);
+        }
     }
 
     /**
      * @param ReflectionParameter $parameter
      * @return mixed
      * @throws NoDefaultValueException
-     * @throws NotFoundException
      * @throws ReflectionException
      */
     protected function resolveParameterArgument(ReflectionParameter $parameter)
