@@ -13,8 +13,8 @@ use Tests\Fixtures\Classes\ClassC;
 use Tests\Fixtures\Classes\ClassE;
 use Tests\Fixtures\Classes\ClassF;
 use Tests\Fixtures\Classes\ClassD;
-use Container\NoDefaultValueException;
 use Tests\Fixtures\Classes\classH;
+use Container\NoDefaultValueException;
 use Tests\Fixtures\Contracts\Contract1;
 use Tests\Fixtures\Contracts\Contract2;
 
