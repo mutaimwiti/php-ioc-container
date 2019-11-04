@@ -142,6 +142,15 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
+    function it_binds_abstract_to_itself_if_no_concrete_is_provided() {
+        $this->container->bind(ClassA::class);
+
+        $expected = new ClassA();
+
+        $this->assertEquals($expected, $this->container->make(ClassA::class));
+    }
+
+    /** @test */
     function it_throws_for_interface_without_binding() {
         $this->expectException(ResolutionException::class);
 

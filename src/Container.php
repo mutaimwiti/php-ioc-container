@@ -16,8 +16,12 @@ class Container
      * @param $abstract
      * @param $concrete
      */
-    public function bind($abstract, $concrete)
+    public function bind($abstract, $concrete = null)
     {
+        if ($concrete === null) {
+            $concrete = $abstract;
+        }
+
         $this->bindings[$abstract] = $concrete;
     }
 
@@ -50,9 +54,14 @@ class Container
             if ($concrete instanceof Closure) {
                 return $concrete($this);
             }
+            // if abstract === concrete we resolve abstract
+            if ($abstract === $concrete) {
+                return $this->resolve($concrete);
+            }
 
-            // There is a possibility that this concrete aliases another concrete
-            // in which case we want resolve to be called
+            // there is a possibility that this concrete aliases another concrete
+            // in which case we want to follow any nests
+            // elaboration: given bind(X, Y) and bind(Z, X) , resolve Z should give Y
             return $this->make($concrete);
         }
 
