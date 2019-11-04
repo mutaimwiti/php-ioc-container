@@ -175,4 +175,32 @@ class ContainerTest extends TestCase
 
         $this->assertEquals($expected, $this->container->make(Contract2::class));
     }
+
+    /** @test */
+    function it_allows_binding_to_instances() {
+        $classA = new ClassA();
+
+        $this->container->instance(ClassA::class, $classA);
+
+        $resolved = $this->container->make(ClassA::class);
+
+        $this->assertEquals(spl_object_hash($classA), spl_object_hash($resolved));
+    }
+
+    /** @test
+     * @throws \Exception
+     */
+    function it_uses_bound_instances_when_loading_class_dependencies()
+    {
+        $classA = new ClassA();
+        $classA->message = 'Hello world';
+
+        $this->container->instance(ClassA::class, $classA);
+
+        $expected = new ClassC($classA, new ClassB($classA));
+        $resolved = $this->container->make(ClassC::class);
+
+        $this->assertEquals($expected->classA, $resolved->classA);
+        $this->assertEquals($expected->classB->classA, $resolved->classB->classA);
+    }
 }

@@ -10,6 +10,7 @@ use ReflectionParameter;
 class Container
 {
     protected $bindings = [];
+    protected $instances = [];
 
     /**
      * @param $abstract
@@ -22,6 +23,15 @@ class Container
 
     /**
      * @param $abstract
+     * @param $instance
+     */
+    public function instance($abstract, $instance)
+    {
+        $this->instances[$abstract] = $instance;
+    }
+
+    /**
+     * @param $abstract
      * @return bool|mixed
      * @throws NoDefaultValueException
      * @throws ReflectionException
@@ -29,6 +39,10 @@ class Container
      */
     public function make($abstract)
     {
+        if (array_key_exists($abstract, $this->instances)) {
+            return $this->instances[$abstract];
+        }
+
         if (array_key_exists($abstract, $this->bindings)) {
             $concrete = $this->bindings[$abstract];
 
