@@ -39,10 +39,11 @@ class Container
      */
     public function make($abstract)
     {
+        // we prioritize instances. If an instance exists we return it
         if (array_key_exists($abstract, $this->instances)) {
             return $this->instances[$abstract];
         }
-
+        // if no instance exists we try ro resolve from bindings
         if (array_key_exists($abstract, $this->bindings)) {
             $concrete = $this->bindings[$abstract];
 
@@ -50,6 +51,8 @@ class Container
                 return $concrete($this);
             }
 
+            // There is a possibility that this concrete aliases another concrete
+            // in which case we want resolve to be called
             return $this->make($concrete);
         }
 
