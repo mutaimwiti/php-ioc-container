@@ -25,6 +25,7 @@ class Container
      * @return bool|mixed
      * @throws NoDefaultValueException
      * @throws ReflectionException
+     * @throws ResolutionException
      */
     public function make($abstract)
     {
@@ -35,7 +36,7 @@ class Container
                 return $concrete($this);
             }
 
-            return $this->resolve($abstract);
+            return $this->make($concrete);
         }
 
         return $this->resolve($abstract);
@@ -46,6 +47,7 @@ class Container
      * @return bool
      * @throws NoDefaultValueException
      * @throws ReflectionException
+     * @throws ResolutionException
      */
     protected function resolve($abstract)
     {
@@ -63,6 +65,8 @@ class Container
             }
 
             return new $abstract(...$arguments);
+        } else {
+            throw new ResolutionException("[$abstract] is not instantiable");
         }
     }
 
@@ -71,6 +75,7 @@ class Container
      * @return mixed
      * @throws NoDefaultValueException
      * @throws ReflectionException
+     * @throws ResolutionException
      */
     protected function resolveParameterArgument(ReflectionParameter $parameter)
     {

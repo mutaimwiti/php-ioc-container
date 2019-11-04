@@ -3,7 +3,9 @@
 namespace Tests;
 
 use Container\Container;
+use Container\ResolutionException;
 use ReflectionException;
+use Tests\Fixtures\Class1;
 use Tests\Fixtures\ClassA;
 use Tests\Fixtures\ClassB;
 use Tests\Fixtures\ClassC;
@@ -12,6 +14,8 @@ use Tests\Fixtures\ClassF;
 use Tests\Fixtures\ClassD;
 use PHPUnit\Framework\TestCase;
 use Container\NoDefaultValueException;
+use Tests\Fixtures\Contracts\Contract1;
+use Tests\Fixtures\Contracts\Contract2;
 
 
 class ContainerTest extends TestCase
@@ -124,5 +128,40 @@ class ContainerTest extends TestCase
         $expected = new ClassD(new ClassA(), 7);
 
         $this->assertEquals($expected, $this->container->make(ClassD::class));
+    }
+
+    /** @test */
+    function it_throws_for_interface_without_binding() {
+        $this->expectException(ResolutionException::class);
+
+        $this->container->make(Contract1::class);
+    }
+
+    /** @test */
+    function it_throws_for_interface_bound_to_interface() {
+        $this->expectException(ResolutionException::class);
+
+        $this->container->bind(Contract1::class, Contract2::class);
+
+        $this->container->make(Contract1::class);
+    }
+
+    /** @test */
+    function it_correctly_resolves_interface_bound_to_concrete() {
+        $this->container->bind(Contract1::class, Class1::class);
+
+        $expected = new Class1();
+
+        $this->assertEquals($expected, $this->container->make(Contract1::class));
+    }
+
+    /** @test */
+    function it_follows_nested_bindings_to_resolve_correct_type() {
+        $this->container->bind(Contract1::class, Class1::class);
+        $this->container->bind(Contract2::class, Contract1::class);
+
+        $expected = new Class1();
+
+        $this->assertEquals($expected, $this->container->make(Contract2::class));
     }
 }
