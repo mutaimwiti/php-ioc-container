@@ -2,17 +2,17 @@
 
 namespace Tests;
 
-use Container\Container;
-use Container\ResolutionException;
 use ReflectionException;
-use Tests\Fixtures\Class1;
-use Tests\Fixtures\ClassA;
-use Tests\Fixtures\ClassB;
-use Tests\Fixtures\ClassC;
-use Tests\Fixtures\ClassE;
-use Tests\Fixtures\ClassF;
-use Tests\Fixtures\ClassD;
+use Container\Container;
 use PHPUnit\Framework\TestCase;
+use Container\ResolutionException;
+use Tests\Fixtures\Classes\Class1;
+use Tests\Fixtures\Classes\ClassA;
+use Tests\Fixtures\Classes\ClassB;
+use Tests\Fixtures\Classes\ClassC;
+use Tests\Fixtures\Classes\ClassE;
+use Tests\Fixtures\Classes\ClassF;
+use Tests\Fixtures\Classes\ClassD;
 use Container\NoDefaultValueException;
 use Tests\Fixtures\Contracts\Contract1;
 use Tests\Fixtures\Contracts\Contract2;
