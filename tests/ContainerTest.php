@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use LogicException;
 use ReflectionException;
 use Container\Container;
 use PHPUnit\Framework\TestCase;
@@ -45,7 +46,8 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
-    function it_should_register_and_resolve_arbitrary_values_as_instances() {
+    function it_should_register_and_resolve_arbitrary_values_as_instances()
+    {
         $this->container->instance('hello', 'world');
 
         $this->assertEquals('world', $this->container->make('hello'));
@@ -150,7 +152,8 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
-    function it_binds_abstract_to_itself_if_no_concrete_is_provided() {
+    function it_binds_abstract_to_itself_if_no_concrete_is_provided()
+    {
         $this->container->bind(ClassA::class);
 
         $expected = new ClassA();
@@ -159,14 +162,16 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
-    function it_throws_for_interface_without_binding() {
+    function it_throws_for_interface_without_binding()
+    {
         $this->expectException(ResolutionException::class);
 
         $this->container->make(Contract1::class);
     }
 
     /** @test */
-    function it_throws_for_interface_bound_to_interface() {
+    function it_throws_for_interface_bound_to_interface()
+    {
         $this->expectException(ResolutionException::class);
 
         $this->container->bind(Contract1::class, Contract2::class);
@@ -175,7 +180,8 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
-    function it_correctly_resolves_interface_bound_to_concrete() {
+    function it_correctly_resolves_interface_bound_to_concrete()
+    {
         $this->container->bind(Contract1::class, Class1::class);
 
         $expected = new Class1();
@@ -184,7 +190,8 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
-    function it_follows_nested_bindings_to_resolve_correct_type() {
+    function it_follows_nested_bindings_to_resolve_correct_type()
+    {
         $this->container->bind(Contract1::class, Class1::class);
         $this->container->bind(Contract2::class, Contract1::class);
         $this->container->bind(Contract3::class, Contract2::class);
@@ -195,7 +202,8 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
-    function it_allows_binding_to_instances() {
+    function it_allows_binding_to_instances()
+    {
         $classA = new ClassA();
 
         $this->container->instance(ClassA::class, $classA);
@@ -223,17 +231,19 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
-    function it_binds_singletons() {
+    function it_binds_singletons()
+    {
         $this->container->singleton(ClassA::class);
 
         $resolved = $this->container->make(ClassA::class);
-        $resolvedAgain = $this->container->make(ClassA::class);
+        $resolved2 = $this->container->make(ClassA::class);
 
-        $this->assertEquals(spl_object_hash($resolved), spl_object_hash($resolvedAgain));
+        $this->assertEquals(spl_object_hash($resolved), spl_object_hash($resolved2));
     }
 
     /** @test */
-    function it_drops_existing_instances_when_bindings_are_registered() {
+    function it_drops_existing_instances_when_bindings_are_registered()
+    {
         $classA = new ClassA();
 
         $this->container->instance(ClassA::class, $classA);
@@ -242,5 +252,53 @@ class ContainerTest extends TestCase
         $resolved = $this->container->make(ClassA::class);
 
         $this->assertNotEquals(spl_object_hash($classA), spl_object_hash($resolved));
+    }
+
+    /** @test */
+    function it_drops_existing_aliases_when_bindings_are_registered()
+    {
+        // alias ClassA with foo
+        $this->container->alias(ClassA::class, 'foo');
+        $resolved = $this->container->make('foo');
+        $this->assertInstanceOf(ClassA::class, $resolved);
+
+        // bind foo to ClassB - since foo is now bound to ClassB it ceases to alias ClassA
+        $this->container->bind('foo', ClassB::class);
+        $resolved = $this->container->make('foo');
+        $this->assertInstanceOf(ClassB::class, $resolved);
+    }
+
+    /** @test */
+    function it_should_allow_aliasing_of_types()
+    {
+        $this->container->singleton(ClassA::class);
+        $this->container->alias(ClassA::class, 'ca');
+
+        $resolved = $this->container->make('ca');
+        $expected = new ClassA();
+
+        $this->assertEquals($expected, $resolved);
+    }
+
+    /** @test */
+    function it_should_allow_nested_aliasing()
+    {
+        $this->container->singleton(ClassA::class);
+        $this->container->alias(ClassA::class, 'x');
+        $this->container->alias('x', 'y');
+        $this->container->alias('y', 'z');
+
+        $resolved = $this->container->make('z');
+        $expected = new ClassA();
+
+        $this->assertEquals($expected, $resolved);
+    }
+
+    /** @test */
+    function it_should_not_allow_self_aliasing()
+    {
+        $this->expectException(LogicException::class);
+
+        $this->container->alias(ClassA::class, ClassA::class);
     }
 }

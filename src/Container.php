@@ -3,12 +3,14 @@
 namespace Container;
 
 use Closure;
+use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionParameter;
 
 class Container
 {
+    protected $aliases = [];
     protected $bindings = [];
     protected $instances = [];
 
@@ -23,8 +25,7 @@ class Container
             $concrete = $abstract;
         }
 
-        // drop existing instances
-        unset($this->instances[$abstract]);
+        $this->dropExisting($abstract);
 
         $this->bindings[$abstract] = compact('concrete', 'shared');
     }
@@ -49,6 +50,19 @@ class Container
 
     /**
      * @param $abstract
+     * @param $alias
+     */
+    public function alias($abstract, $alias)
+    {
+        if ($alias === $abstract) {
+            throw new LogicException("[$abstract] is aliased to itself");
+        }
+
+        $this->aliases[$alias] = $abstract;
+    }
+
+    /**
+     * @param $abstract
      * @return bool|mixed
      * @throws NoDefaultValueException
      * @throws ReflectionException
@@ -56,6 +70,8 @@ class Container
      */
     public function make($abstract)
     {
+        $abstract = $this->getAlias($abstract);
+
         // we prioritize instances. If an instance exists we return it
         if (array_key_exists($abstract, $this->instances)) {
             return $this->instances[$abstract];
@@ -66,6 +82,28 @@ class Container
         }
 
         return $this->resolve($abstract);
+    }
+
+    /**
+     * Drop existing instances and aliases
+     * @param $abstract
+     */
+    public function dropExisting($abstract): void
+    {
+        unset($this->instances[$abstract], $this->aliases[$abstract]);
+    }
+
+    /**
+     * @param $abstract
+     * @return mixed
+     */
+    protected function getAlias($abstract)
+    {
+        if (!isset($this->aliases[$abstract])) {
+            return $abstract;
+        }
+
+        return $this->getAlias($this->aliases[$abstract]);
     }
 
     /**
