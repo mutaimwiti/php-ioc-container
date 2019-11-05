@@ -44,6 +44,13 @@ class ContainerTest extends TestCase
         $this->assertEquals('bar', $this->container->make('foo'));
     }
 
+    /** @test */
+    function it_should_register_and_resolve_arbitrary_values_as_instances() {
+        $this->container->instance('hello', 'world');
+
+        $this->assertEquals('world', $this->container->make('hello'));
+    }
+
     /** @test
      * @throws \Exception
      */
