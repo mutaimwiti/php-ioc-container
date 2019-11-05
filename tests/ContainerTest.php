@@ -17,6 +17,7 @@ use Tests\Fixtures\Classes\classH;
 use Container\NoDefaultValueException;
 use Tests\Fixtures\Contracts\Contract1;
 use Tests\Fixtures\Contracts\Contract2;
+use Tests\Fixtures\Contracts\Contract3;
 
 
 class ContainerTest extends TestCase
@@ -179,10 +180,11 @@ class ContainerTest extends TestCase
     function it_follows_nested_bindings_to_resolve_correct_type() {
         $this->container->bind(Contract1::class, Class1::class);
         $this->container->bind(Contract2::class, Contract1::class);
+        $this->container->bind(Contract3::class, Contract2::class);
 
         $expected = new Class1();
 
-        $this->assertEquals($expected, $this->container->make(Contract2::class));
+        $this->assertEquals($expected, $this->container->make(Contract3::class));
     }
 
     /** @test */
