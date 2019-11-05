@@ -23,6 +23,9 @@ class Container
             $concrete = $abstract;
         }
 
+        // drop existing instances
+        unset($this->instances[$abstract]);
+
         $this->bindings[$abstract] = compact('concrete', 'shared');
     }
 

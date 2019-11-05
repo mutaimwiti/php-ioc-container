@@ -224,4 +224,16 @@ class ContainerTest extends TestCase
 
         $this->assertEquals(spl_object_hash($resolved), spl_object_hash($resolvedAgain));
     }
+
+    /** @test */
+    function it_drops_existing_instances_when_bindings_are_registered() {
+        $classA = new ClassA();
+
+        $this->container->instance(ClassA::class, $classA);
+        $this->container->bind(ClassA::class);
+
+        $resolved = $this->container->make(ClassA::class);
+
+        $this->assertNotEquals(spl_object_hash($classA), spl_object_hash($resolved));
+    }
 }
