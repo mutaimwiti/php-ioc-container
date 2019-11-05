@@ -212,4 +212,14 @@ class ContainerTest extends TestCase
         $this->assertEquals($expected->classA, $resolved->classA);
         $this->assertEquals($expected->classB->classA, $resolved->classB->classA);
     }
+
+    /** @test */
+    function it_binds_singletons() {
+        $this->container->singleton(ClassA::class);
+
+        $resolved = $this->container->make(ClassA::class);
+        $resolvedAgain = $this->container->make(ClassA::class);
+
+        $this->assertEquals(spl_object_hash($resolved), spl_object_hash($resolvedAgain));
+    }
 }

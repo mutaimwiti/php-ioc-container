@@ -15,14 +15,24 @@ class Container
     /**
      * @param $abstract
      * @param $concrete
+     * @param bool $shared
      */
-    public function bind($abstract, $concrete = null)
+    public function bind($abstract, $concrete = null, $shared = true)
     {
         if ($concrete === null) {
             $concrete = $abstract;
         }
 
-        $this->bindings[$abstract] = $concrete;
+        $this->bindings[$abstract] = compact('concrete', 'shared');
+    }
+
+    /**
+     * @param $abstract
+     * @param null $concrete
+     */
+    public function singleton($abstract, $concrete = null)
+    {
+        $this->bind($abstract, $concrete, true);
     }
 
     /**
@@ -49,23 +59,58 @@ class Container
         }
         // if no instance exists we try ro resolve from bindings
         if (array_key_exists($abstract, $this->bindings)) {
-            $concrete = $this->bindings[$abstract];
-
-            if ($concrete instanceof Closure) {
-                return $concrete($this);
-            }
-            // if abstract === concrete we resolve abstract
-            if ($abstract === $concrete) {
-                return $this->resolve($concrete);
-            }
-
-            // there is a possibility that this concrete aliases another concrete
-            // in which case we want to follow any nests
-            // elaboration: given bind(X, Y) and bind(Z, X) , resolve Z should give Y
-            return $this->make($concrete);
+            return $this->build($abstract);
         }
 
         return $this->resolve($abstract);
+    }
+
+    /**
+     * @param $abstract
+     * @return bool|mixed
+     * @throws NoDefaultValueException
+     * @throws ReflectionException
+     * @throws ResolutionException
+     */
+    protected function build($abstract)
+    {
+        $concrete = $this->getConcrete($abstract);
+
+        if ($concrete instanceof Closure) {
+            $instance = $concrete($this);
+        } else if ($abstract === $concrete) {
+            // if abstract === concrete we resolve abstract
+            $instance = $this->resolve($concrete);
+        } else {
+            // there is a possibility that this concrete aliases another concrete
+            // in which case we want to follow any nests
+            // elaboration: given bind(X, Y) and bind(Z, X) , resolve Z should give Y
+            $instance = $this->make($concrete);
+        }
+
+        if ($this->isShared($abstract)) {
+            $this->instances[$abstract] = $instance;
+        }
+
+        return $instance;
+    }
+
+    /**
+     * @param $abstract
+     * @return mixed
+     */
+    protected function getConcrete($abstract)
+    {
+        return $this->bindings[$abstract]['concrete'];
+    }
+
+    /**
+     * @param $abstract
+     * @return bool
+     */
+    protected function isShared($abstract)
+    {
+        return $this->bindings[$abstract]['shared'] === true;
     }
 
     /**
