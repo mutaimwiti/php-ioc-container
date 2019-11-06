@@ -100,13 +100,20 @@ class Container
     }
 
     /**
-     * Clear all bindings and instances from the container
+     * Clear all bindings, aliases, and instances from the container
      */
     public function flush()
     {
         $this->aliases = [];
         $this->bindings = [];
         $this->instances = [];
+    }
+
+    /**
+     * @param $abstract
+     */
+    public function forgetInstance($abstract) {
+        unset($this->instances[$abstract]);
     }
 
     /**

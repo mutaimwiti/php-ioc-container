@@ -353,4 +353,13 @@ class ContainerTest extends TestCase
         $this->container->flush();
         $this->container->make('foo');
     }
+
+    /** @test */
+    function it_should_allow_forgetting_of_specific_instances() {
+        $this->expectException(ResolutionException::class);
+
+        $this->container->instance(Contract1::class, new Class1());
+        $this->container->forgetInstance(Contract1::class);
+        $this->container->make(Contract1::class);
+    }
 }
