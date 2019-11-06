@@ -301,4 +301,11 @@ class ContainerTest extends TestCase
 
         $this->container->alias(ClassA::class, ClassA::class);
     }
+
+    /** @test */
+    function it_should_allow_creation_of_a_globally_available_instance() {
+        $instance = Container::getInstance();
+
+        $this->assertEquals(spl_object_hash($instance), spl_object_hash(Container::getInstance()));
+    }
 }

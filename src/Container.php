@@ -13,6 +13,20 @@ class Container
     protected $aliases = [];
     protected $bindings = [];
     protected $instances = [];
+    protected static $instance;
+
+    /**
+     * Get globally available instance of container
+     * @return Container
+     */
+    public static function getInstance()
+    {
+        if (is_null(static::$instance)) {
+            static::$instance = new static();
+        }
+
+        return static::$instance;
+    }
 
     /**
      * @param $abstract
