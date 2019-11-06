@@ -3,12 +3,13 @@
 namespace Container;
 
 use Closure;
+use ArrayAccess;
 use LogicException;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionParameter;
 
-class Container
+class Container implements ArrayAccess
 {
     protected static $instance;
 
@@ -246,5 +247,59 @@ class Container
                 "Parameter $parameter->name has no default value"
             );
         }
+    }
+
+    /**
+     * Determine if given abstract type is bound
+     * @param $abstract
+     * @return bool
+     */
+    protected function bound($abstract)
+    {
+        return isset($this->bindings[$abstract]) ||
+            isset($this->instances[$abstract]) ||
+            isset($this->aliases[$abstract]);
+    }
+
+    /**
+     * Determine if given offset exists
+     * @param $key
+     * @return bool
+     */
+    public function offsetExists($key)
+    {
+        return $this->bound($key);
+    }
+
+    /**
+     * Get value at given offset
+     * @param $key
+     * @return bool|mixed
+     * @throws NoDefaultValueException
+     * @throws ReflectionException
+     * @throws ResolutionException
+     */
+    public function offsetGet($key)
+    {
+        return $this->make($key);
+    }
+
+    /**
+     * Set value at given offset
+     * @param $key
+     * @param $value
+     */
+    public function offsetSet($key, $value)
+    {
+        $this->bind($key, $value);
+    }
+
+    /**
+     * Unset value at given offset
+     * @param $key
+     */
+    public function offsetUnset($key)
+    {
+        unset($this->bindings[$key], $this->instances[$key]);
     }
 }

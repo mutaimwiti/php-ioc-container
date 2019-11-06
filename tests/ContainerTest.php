@@ -383,4 +383,27 @@ class ContainerTest extends TestCase
             }
         }
     }
+
+    /** @test */
+    function it_allows_array_set_and_access()
+    {
+        // set value - bind
+        $this->container[Contract1::class] = Class1::class;
+        // access value - make
+        $this->assertInstanceOf(Class1::class, $this->container[Contract1::class]);
+    }
+
+    /** @test */
+    function it_allows_array_un_set()
+    {
+        $this->expectException(ResolutionException::class);
+        // set value - bind
+        $this->container[Contract1::class] = Class1::class;
+        // access value - make
+        $this->assertInstanceOf(Class1::class, $this->container[Contract1::class]);
+        // un-set key
+        unset($this->container[Contract1::class]);
+        // attempt to access unset value - make
+        $this->container[Contract1::class];
+    }
 }
