@@ -406,4 +406,13 @@ class ContainerTest extends TestCase
         // attempt to access unset value - make
         $this->container[Contract1::class];
     }
+
+    /** @test */
+    function it_allows_dynamic_setting_and_access()
+    {
+        // set value - bind
+        $this->container->{Contract1::class} = Class1::class;
+        // access value - make
+        $this->assertInstanceOf(Class1::class, $this->container->{Contract1::class});
+    }
 }

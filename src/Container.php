@@ -302,4 +302,24 @@ class Container implements ArrayAccess
     {
         unset($this->bindings[$key], $this->instances[$key]);
     }
+
+    /**
+     * Dynamically bind values
+     * @param $key
+     * @param $value
+     */
+    public function __set($key, $value)
+    {
+        $this[$key] = $value;
+    }
+
+    /**
+     * Dynamically get values
+     * @param $key
+     * @return bool|mixed
+     */
+    public function __get($key)
+    {
+        return $this[$key];
+    }
 }
