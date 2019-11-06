@@ -8,6 +8,7 @@ use Container\Container;
 use PHPUnit\Framework\TestCase;
 use Container\ResolutionException;
 use Tests\Fixtures\Classes\Class1;
+use Tests\Fixtures\Classes\Class2;
 use Tests\Fixtures\Classes\ClassA;
 use Tests\Fixtures\Classes\ClassB;
 use Tests\Fixtures\Classes\ClassC;
@@ -355,11 +356,31 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
-    function it_should_allow_forgetting_of_specific_instances() {
+    function it_should_forget_a_specific_instance_when_forget_instance_is_invoked()
+    {
         $this->expectException(ResolutionException::class);
 
         $this->container->instance(Contract1::class, new Class1());
         $this->container->forgetInstance(Contract1::class);
         $this->container->make(Contract1::class);
+    }
+
+    /** @test */
+    function it_should_forget_all_instances_when_forget_instances_is_invoked()
+    {
+        $this->container->instance(Contract1::class, new Class1());
+        $this->container->instance(Contract2::class, new Class2());
+
+        $this->container->forgetInstances();
+
+        $abstracts = [Contract1::class, Contract2::class];
+
+        foreach ($abstracts as $abstract) {
+            try {
+                $this->container->make($abstract);
+            } catch (\Exception $exception) {
+                $this->assertInstanceOf(ResolutionException::class, $exception);
+            }
+        }
     }
 }

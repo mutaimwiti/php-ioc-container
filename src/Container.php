@@ -110,10 +110,20 @@ class Container
     }
 
     /**
+     * Forget specific instance
      * @param $abstract
      */
-    public function forgetInstance($abstract) {
+    public function forgetInstance($abstract)
+    {
         unset($this->instances[$abstract]);
+    }
+
+    /**
+     * Forget all registered and resolved instances
+     */
+    public function forgetInstances()
+    {
+        $this->instances = [];
     }
 
     /**
