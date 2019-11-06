@@ -10,10 +10,11 @@ use ReflectionParameter;
 
 class Container
 {
+    protected static $instance;
+
     protected $aliases = [];
     protected $bindings = [];
     protected $instances = [];
-    protected static $instance;
 
     /**
      * Get globally available instance of container
@@ -99,10 +100,20 @@ class Container
     }
 
     /**
+     * Clear all bindings and instances from the container
+     */
+    public function flush()
+    {
+        $this->aliases = [];
+        $this->bindings = [];
+        $this->instances = [];
+    }
+
+    /**
      * Drop existing instances and aliases
      * @param $abstract
      */
-    public function dropExisting($abstract): void
+    protected function dropExisting($abstract): void
     {
         unset($this->instances[$abstract], $this->aliases[$abstract]);
     }

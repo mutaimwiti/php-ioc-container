@@ -303,9 +303,54 @@ class ContainerTest extends TestCase
     }
 
     /** @test */
-    function it_should_allow_creation_of_a_globally_available_instance() {
+    function it_should_allow_creation_of_a_globally_available_instance()
+    {
         $instance = Container::getInstance();
 
         $this->assertEquals(spl_object_hash($instance), spl_object_hash(Container::getInstance()));
+    }
+
+    /** @test */
+    function it_should_clear_all_bindings_when_flush_is_invoked()
+    {
+        $this->expectException(ResolutionException::class);
+
+        $this->container->bind(Contract1::class, Class1::class);
+        $this->container->flush();
+        $this->container->make(Contract1::class);
+    }
+
+    /** @test */
+    function it_should_clear_all__registered_instances_when_flush_is_invoked()
+    {
+        $this->expectException(ResolutionException::class);
+
+        $this->container->instance(Contract1::class, Class1::class);
+        $this->container->flush();
+        $this->container->make(Contract1::class);
+    }
+
+    /** @test */
+    function it_should_clear_all_resolved_instances_when_flush_is_invoked()
+    {
+        $this->expectException(ResolutionException::class);
+
+        $this->container->singleton(Contract1::class, Class1::class);
+        $resolved = $this->container->make(Contract1::class);
+
+        $this->assertInstanceOf(Class1::class, $resolved);
+
+        $this->container->flush();
+        $this->container->make(Contract1::class);
+    }
+
+    /** @test */
+    function it_should_clear_all_aliases_when_flush_is_invoked()
+    {
+        $this->expectException(ReflectionException::class);
+
+        $this->container->alias(ClassA::class, 'foo');
+        $this->container->flush();
+        $this->container->make('foo');
     }
 }
