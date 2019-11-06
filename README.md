@@ -1,2 +1,2 @@
-# IOC Container
-A simple IOC container in PHP
+# IoC Container
+A simple IoC container in PHP inspired by Laravel's service container
